@@ -1,2 +1,0 @@
-# Academico
-OOP's classroom.
