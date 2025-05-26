@@ -1,72 +1,67 @@
 from django.contrib import admin
 from .models import *
 
-class PersonInline(admin.TabularInline):
-    model = Person 
-    extra = 3
+admin.site.register(Cidade)
+admin.site.register(Turno)
+admin.site.register(Matricula)
+admin.site.register(Avaliacao)
+admin.site.register(Frequencia)
+admin.site.register(Ocorrencia)
+admin.site.register(CursoDisciplina)
+admin.site.register(TipoAvaliacao)
+admin.site.register(Pessoa)
 
-class OccupationAdmin(admin.ModelAdmin):
-    list_display = ("name",)
-    search_fields = ("name",)
 
-    inlines = [PersonInline]
+# Ocupação e Pessoas
+class PessoaInline(admin.TabularInline):
+    model = Pessoa
+    extra = 1
+class OcupacaoAdmin(admin.ModelAdmin):
+    list_display = ('nome',)
+    inlines = [PessoaInline]
 
-class CourseInline(admin.TabularInline):
-    model = Course
-    extra = 3
+admin.site.register(Ocupacao,OcupacaoAdmin)
 
-class InstitutionAdmin(admin.ModelAdmin):
-    list_display = ("name",)
-    search_fields = ("name",)
+# Instituição e cursos
+class CursoInline(admin.TabularInline):
+    model = Curso
+    extra = 1
 
-    inlines = [CourseInline]
+class InstituicaoAdmin(admin.ModelAdmin):
+    list_display = ('nome',)
+    inlines = [CursoInline]
+admin.site.register(Instituicao,InstituicaoAdmin)
 
-class KnowledgeAreaAdmin(admin.ModelAdmin):
-    list_display = ("name",)
-    search_fields = ("name",)
+# Area do saber e Cursos
+class AreaSaberAdmin(admin.ModelAdmin):
+    list_display = ('nome',)
+    inlines = [CursoInline]
+admin.site.register(AreaSaber,AreaSaberAdmin)
 
-    inlines = [CourseInline]
+# Cursos e Disciplinas
+class DisciplinasInline(admin.TabularInline):
+    model = Disciplina
+    extra = 1
 
-class AvaliationInline(admin.TabularInline):
-    model = Avaliation
-    extra = 3
+class CursoAdmin(admin.ModelAdmin):
+    inlines = [DisciplinasInline]
 
-class DisciplineAdmin(admin.ModelAdmin):
-    list_display = ("name", "name",)
-    search_fields = ("name", "name",)
+admin.site.register(Curso, CursoAdmin)
 
-    inlines = [AvaliationInline, CourseInline]
+# Disciplina e Avaliações 
+class AvaliacaoInline(admin.TabularInline):
+    model = Avaliacao
+    extra = 1
+class DisciplinaAdmin(admin.ModelAdmin):
+    list_display = ('nome',)
+    inlines = [AvaliacaoInline]
+admin.site.register(Disciplina,DisciplinaAdmin)
 
-class SessionInline(admin.TabularInline):
-    model = Session
-    extra = 3
-
-class UfInline(admin.TabularInline):
-    model = Uf
-    extra = 3
-
-class CityAdmin(admin.ModelAdmin):
-    list_display = ("name",)
-    search_fields = ("name",)
-
-    inlines = [UfInline]
-
-class FrequenceInline(admin.TabularInline):
-    model = Frequence
-    extra = 3
-
-class DisciplineInline(admin.TabularInline):
-    model = Discipline
-    extra = 3
-
-class PersonAdmin(admin.ModelAdmin):
-    list_display = ("name", "name","name", "name", "name",)
-    search_fields = ("name", "name","name", "name", "name",)
-
-    inlines = [SessionInline, CourseInline, DisciplineInline, AvaliationInline, FrequenceInline]
-
-admin.site.register(Occupation, OccupationAdmin)
-admin.site.register(EducationalInstitution, InstitutionAdmin)
-admin.site.register(Discipline, DisciplineAdmin)
-admin.site.register(Person, PersonAdmin)
-admin.site.register(City, CityAdmin)
+# Turmas e Alunos 
+class AlunoInline(admin.TabularInline):
+    model = Matricula
+    extra = 1
+class TurmaAdmin(admin.ModelAdmin):
+    list_display = ('nome',)
+    inlines = [AlunoInline]
+admin.site.register(Turma,TurmaAdmin)

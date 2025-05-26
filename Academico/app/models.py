@@ -1,207 +1,194 @@
 from django.db import models
-from django.utils.timezone import now
-import django
-from datetime import datetime, timedelta
 
-class Occupation(models.Model):
-    name = models.CharField(max_length=99, verbose_name="Occupation's name", null=True, blank=True)
+class Cidade(models.Model):
+    nome = models.CharField(max_length=100, verbose_name="Nome da cidade")
+    uf = models.CharField(max_length=2, verbose_name="UF")
 
     def __str__(self):
-        return self.name
-    
-    class Meta:
-        verbose_name = "Occupation"
-        verbose_name_plural = "occupations"
+        return f"{self.nome}, {self.uf}"
 
-class City(models.Model):
-    name = models.CharField(max_length=99, verbose_name="City's name", null=True, blank=True)
+    class Meta:
+        verbose_name = "Cidade"
+        verbose_name_plural = "Cidades"
+
+
+class Ocupacao(models.Model):
+    nome = models.CharField(max_length=100, verbose_name="Nome da ocupação")
 
     def __str__(self):
-        return self.name
-    
-    class Meta:
-        verbose_name = "City"
-        verbose_name_plural = "Cities"
+        return self.nome
 
-class Uf(models.Model):
-    name = models.CharField(max_length=2, verbose_name="UF's name", null=True, blank=True)
-    city = models.ForeignKey(City, on_delete=models.CASCADE, verbose_name="City's name", null=True, blank=True)
+    class Meta:
+        verbose_name = "Ocupação"
+        verbose_name_plural = "Ocupações"
+
+
+class Pessoa(models.Model):
+    nome = models.CharField(max_length=100)
+    nome_do_pai = models.CharField(max_length=100)
+    nome_da_mae = models.CharField(max_length=100)
+    cpf = models.CharField(max_length=11, unique=True)
+    data_nasc = models.DateField()
+    email = models.EmailField()
+    cidade = models.ForeignKey(Cidade, on_delete=models.CASCADE)
+    ocupacao = models.ForeignKey(Ocupacao, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return self.name
-    
-    class Meta:
-        verbose_name = "UF"
-        verbose_name_plural = "UFs"
+        return self.nome
 
-class Person(models.Model):
-    name = models.CharField(max_length=99, verbose_name="Person's name", null=True, blank=True)
-    father_name = models.CharField(max_length=99, verbose_name="Person's father's name", null=True, blank=True)
-    mother_name = models.CharField(max_length=99, verbose_name="Person's mother's name", null=True, blank=True)
-    cpf = models.CharField(max_length=11, unique=True, verbose_name="Person's CPF", null=True, blank=True)
-    birthday = models.DateField(verbose_name="Person's birthday", default=now)
-    email = models.CharField(max_length=99, verbose_name="Person's email", null=True, blank=True)
-    city = models.ForeignKey(City, on_delete=models.CASCADE, verbose_name="Person's city", null=True, blank=True)
-    occupation = models.ForeignKey(Occupation, on_delete=models.CASCADE, verbose_name="Person's occupation", null=True, blank=True)
+    class Meta:
+        verbose_name = "Pessoa"
+        verbose_name_plural = "Pessoas"
+
+
+class Instituicao(models.Model):
+    nome = models.CharField(max_length=100)
+    site = models.CharField(max_length=100)
+    telefone = models.CharField(max_length=20)
+    cidade = models.ForeignKey(Cidade, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.name}, {self.cpf}'
-    
-    class Meta:
-        verbose_name = "Person"
-        verbose_name_plural = "Persons"
+        return self.nome
 
-class EducationalInstitution(models.Model):
-    name = models.CharField(max_length=99, verbose_name="Institution's name", null=True, blank=True)
-    website = models.CharField(max_length=99, verbose_name="Institution's website", null=True, blank=True)
-    phone = models.CharField(max_length=13, verbose_name="Instituion's phone number", null=True, blank=True)
-    city = models.ForeignKey(City, on_delete=models.CASCADE, verbose_name="Person's city", null=True, blank=True)
-    
-    def __str__(self):
-        return self.name
-    
     class Meta:
-        verbose_name = "Educational Institution"
-        verbose_name_plural = "Educational Institutions"
+        verbose_name = "Instituição"
+        verbose_name_plural = "Instituições"
 
-class KnowledgeArea(models.Model):
-    name = models.CharField(max_length=99, verbose_name="Area's name", null=True, blank=True)
-    
-    def __str__(self):
-        return self.name
-    
-    class Meta:
-        verbose_name = "Knowledge area"
-        verbose_name_plural = "Knowledge areas"
-        
-class Shift(models.Model):
-    name = models.CharField(max_length=99, verbose_name="Shift type", null=True, blank=True)
-    morning = models.BooleanField(verbose_name="Morning shift", null=True, blank=True)
-    nocturnal = models.BooleanField(verbose_name="Nocturnal shift", null=True, blank=True)  
-    
-    def __str__(self):
-        return self.name
-    
-    class Meta:
-        verbose_name = "Shift"
-        verbose_name_plural = "Shifts"
 
-class Discipline(models.Model):
-    name = models.CharField(max_length=99, verbose_name="Discipline's name", null=True, blank=True)
-    knowledgeArea = models.ForeignKey(KnowledgeArea, on_delete=models.CASCADE, verbose_name="Course's area", null=True, blank=True)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, verbose_name="Person", null=True, blank=True)
+class AreaSaber(models.Model):
+    nome = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.name
-    
-    class Meta:
-        verbose_name = "Discipline"
-        verbose_name_plural = "Disciplines"
+        return self.nome
 
-class Course(models.Model):
-    name = models.CharField(max_length=99, verbose_name="Course's name", null=True, blank=True)
-    workload = models.FloatField(verbose_name="Course's workload", null=True, blank=True)
-    knowledgeArea = models.ForeignKey(KnowledgeArea, on_delete=models.CASCADE, verbose_name="Course's area", null=True, blank=True)
-    institution = models.ForeignKey(EducationalInstitution, on_delete=models.CASCADE, verbose_name="Course's institution", null=True, blank=True)
-    discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE, verbose_name="Course's discipline", null=True, blank=True)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, verbose_name="Person", null=True, blank=True)
+    class Meta:
+        verbose_name = "Área do Saber"
+        verbose_name_plural = "Áreas do Saber"
+
+
+class Curso(models.Model):
+    nome = models.CharField(max_length=100)
+    carga_horaria_total = models.IntegerField()
+    duracao_meses = models.IntegerField()
+    area_saber = models.ForeignKey(AreaSaber, on_delete=models.CASCADE)
+    instituicao = models.ForeignKey(Instituicao, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name
-    
-    class Meta:
-        verbose_name = "Course"
-        verbose_name_plural = "Courses"
+        return self.nome
 
-class Register(models.Model):
-    institution = models.ForeignKey(EducationalInstitution, on_delete=models.CASCADE, verbose_name="Educational institution", null=True, blank=True)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name="Course", null=True, blank=True) 
-    discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE, verbose_name="Discipline", null=True, blank=True)
-    start_date = models.DateField(verbose_name="Register's start date", default=now)
-    end_date_prevision = models.DateField(verbose_name="Register's end date prevision", default=datetime.now() + timedelta(days=365*4))
+    class Meta:
+        verbose_name = "Curso"
+        verbose_name_plural = "Cursos"
+
+
+class Turno(models.Model):
+    nome = models.CharField(max_length=20)
 
     def __str__(self):
-        return f"{self.institution}, {self.course}, {self.discipline}" 
-    
-    class Meta:
-        verbose_name = "Register"
-        verbose_name_plural = "Registers"
+        return self.nome
 
-class AvaliationType(models.Model):
-    name = models.CharField(max_length=99, verbose_name="Avaliation type's name", null=True, blank=True)
+    class Meta:
+        verbose_name = "Turno"
+        verbose_name_plural = "Turnos"
+
+
+class Disciplina(models.Model):
+    nome = models.CharField(max_length=100)
+    area_saber = models.ForeignKey(AreaSaber, on_delete=models.CASCADE)
+    curso = models.ForeignKey(
+        Curso,
+        on_delete=models.CASCADE,
+        related_name='disciplinas',
+        null=True,          # ← permite nulo
+        blank=True          # ← campo opcional no admin/forms
+    )
 
     def __str__(self):
-        return self.name
-    
-    class Meta:
-        verbose_name = "Avaliation Type"
-        verbose_name_plural = "Avaliations Types"
+        return self.nome
 
-class Frequence(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name="Course", null=True, blank=True) 
-    discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE, verbose_name="Discipline", null=True, blank=True)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, verbose_name="Person", null=True, blank=True)
-    fault_number = models.IntegerField(verbose_name="Person's number of faults", null=True, blank=True)
+    class Meta:
+        verbose_name = "Disciplina"
+        verbose_name_plural = "Disciplinas"
+
+
+
+class TipoAvaliacao(models.Model):
+    nome = models.CharField(max_length=50)
 
     def __str__(self):
-        return f"{self.discipline}, {self.course}"
-    
-    class Meta:
-        verbose_name = "Frequence"
-        verbose_name_plural = "Frequences"
+        return self.nome
 
-class Avaliation(models.Model):
-    description = models.CharField(max_length=300, verbose_name="Avaliation's description", null=True, blank=True)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name="Course", null=True, blank=True) 
-    discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE, verbose_name="Discipline", null=True, blank=True)
-    grade = models.FloatField(verbose_name="Avaliation's grade")
-    type = models.CharField(max_length=99, verbose_name="Avaliation's type", null=True, blank=True)
-    student = models.ForeignKey(Person, on_delete=models.CASCADE, verbose_name="Student", limit_choices_to={'occupation':'student'}, null=True, blank=True)
+    class Meta:
+        verbose_name = "Tipo de Avaliação"
+        verbose_name_plural = "Tipos de Avaliação"
+
+
+class Avaliacao(models.Model):
+    descricao = models.TextField()
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE)
+    disciplina = models.ForeignKey(Disciplina, on_delete=models.CASCADE)
+    nota = models.DecimalField(max_digits=4, decimal_places=2)
+    tipoavaliacao = models.ForeignKey(TipoAvaliacao, on_delete=models.SET_NULL, null=True)
+
+    class Meta:
+        verbose_name = "Avaliação"
+        verbose_name_plural = "Avaliações"
+
+
+class Frequencia(models.Model):
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE)
+    disciplina = models.ForeignKey(Disciplina, on_delete=models.CASCADE)
+    pessoa = models.ForeignKey(Pessoa, on_delete=models.CASCADE)
+    numero_faltas = models.IntegerField()
+
+    class Meta:
+        verbose_name = "Frequência"
+        verbose_name_plural = "Frequências"
+
+
+class Turma(models.Model):
+    nome = models.CharField(max_length=100)
+    turno = models.ForeignKey(Turno, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.description
-    
+        return self.nome
+
     class Meta:
-        verbose_name = "Avaliation"
-        verbose_name_plural = "Avaliations"
+        verbose_name = "Turma"
+        verbose_name_plural = "Turmas"
 
-class Session(models.Model):
-    name = models.CharField(max_length=99, verbose_name="Session's name", null=True, blank=True)
-    shift = models.ForeignKey(Shift, on_delete=models.CASCADE, verbose_name="Session's shift", null=True, blank=True)
-    student = models.ForeignKey(Person, on_delete=models.CASCADE, verbose_name="Student", limit_choices_to={'occupation':'student'}, null=True, blank=True)
+class Matricula(models.Model):
+    instituicao = models.ForeignKey(Instituicao, on_delete=models.CASCADE)
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE)
+    pessoa = models.ForeignKey(Pessoa, on_delete=models.CASCADE)
+    data_inicio = models.DateField()
+    data_previsao_termino = models.DateField()
+    turma = models.ForeignKey(Turma, on_delete=models.CASCADE,default =1)  
 
-    def __str__(self):
-        return self.name
-    
+
     class Meta:
-        verbose_name = "Session"
-        verbose_name_plural = "Sessions"
+        verbose_name = "Matrícula"
+        verbose_name_plural = "Matrículas"
 
 
-class Ocorrence(models.Model):
-    description = models.CharField(max_length=300, verbose_name="Ocorrence's description", default=now)
-    date = models.DateField(verbose_name="Ocorrence's date", null=True, blank=True)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name="Course", null=True, blank=True) 
-    discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE, verbose_name="Discipline", null=True, blank=True)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, verbose_name="Person", null=True, blank=True)
+class Ocorrencia(models.Model):
+    descricao = models.TextField()
+    data = models.DateField()
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE)
+    disciplina = models.ForeignKey(Disciplina, on_delete=models.CASCADE)
+    pessoa = models.ForeignKey(Pessoa, on_delete=models.CASCADE)
 
-    def __str__(self):
-        return self.description
-    
     class Meta:
-        verbose_name = "Ocorrence"
-        verbose_name_plural = "Ocorrences"
+        verbose_name = "Ocorrência"
+        verbose_name_plural = "Ocorrências"
 
-class DisciplinesPerCourse(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name="Course", null=True, blank=True) 
-    discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE, verbose_name="Discipline", null=True, blank=True)
-    shift = models.ForeignKey(Shift, on_delete=models.CASCADE, verbose_name="Session's shift", null=True, blank=True)
-    workload = models.FloatField(verbose_name="Course's workload", null=True, blank=True)
 
-    def __str__(self):
-        return f"{self.discipline}, {self.course}"
-    
+class CursoDisciplina(models.Model):
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE)
+    disciplina = models.ForeignKey(Disciplina, on_delete=models.CASCADE)
+    turno = models.ForeignKey(Turno, on_delete=models.CASCADE)
+    carga_horaria = models.IntegerField()
+
     class Meta:
-        verbose_name = "Disciplines per course"
-        verbose_name_plural = "Disciplines per courses"
-
+        verbose_name = "Curso-Disciplina"
+        verbose_name_plural = "Disciplinas por Curso"
